@@ -1,4 +1,3 @@
-// import { Cell } from './Cell.js';
 import { Player } from './Player.js';
 import { OasisMarker } from './OasisMarker.js';
 import { Sand } from './Sand.js';
