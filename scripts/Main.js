@@ -8,14 +8,48 @@ import {Item} from "./Item.js";
 const matrix = document.getElementById('matrix');
 
 window.onload = function() {
-    document.getElementById('startForm').addEventListener('submit', function(event) {
+    let numPlayers;
+    const setNumPlayersForm = document.getElementById('setNumPlayers');
+    const setNamePlayersForm = document.getElementById('setNamePlayers');
+
+    setNumPlayersForm.addEventListener('submit', function(event) {
         event.preventDefault();
-        const numPlayers = document.getElementById('numPlayers').value;
-        document.getElementById('startModal').style.display = 'none';
+        numPlayers = document.getElementById('numPlayers').value;
+        setNumPlayersForm.style.display = 'none';
 
         for (let i = 1; i <= numPlayers; i++) {
+            const label = document.createElement('label');
+            label.for = `player_${i}-name`;
+            label.textContent = `Player ${i} name: `;
+            label.classList.add('text-2xl', 'm-auto');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = `player_${i}-name-input`;
+            input.classList.add('m-auto', 'my-2', 'px-4', 'py-2', 'text-center', 'text-2xl', 'bg-gray-300', 'rounded');
+
+            setNamePlayersForm.appendChild(label);
+            setNamePlayersForm.appendChild(input);
+            setNamePlayersForm.appendChild(document.createElement('br'));
+        }
+
+        setNamePlayersForm.style.display = 'block';
+    });
+
+    setNamePlayersForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        for (let i = 1; i <= numPlayers; i++) {
+            if (document.getElementById(`player_${i}-name-input`).value === '') {
+                document.getElementById(`player_${i}-name`).textContent = `Player ${i}`;
+            }else {
+                document.getElementById(`player_${i}-name`).textContent = document.getElementById(`player_${i}-name-input`).value;
+            }
+
             document.getElementById(`player_${i}`).style.display = 'block';
         }
+
+        setNamePlayersForm.style.display = 'none';
+        document.getElementById('startModal').style.display = 'none';
     });
 }
 
@@ -25,7 +59,7 @@ function getRandomSet(length) {
         let i = Math.floor(Math.random() * 5);
         let j = Math.floor(Math.random() * 5);
 
-        if(set.has(`${i},${j}`) || (i === 2 && j === 2)){
+        if (set.has(`${i},${j}`) || (i === 2 && j === 2)) {
             continue;
         }
         set.add(`${i},${j}`);
@@ -49,11 +83,11 @@ function createLevel() {
                 cell = new Player(i, j);
                 player = new Player(i, j, new Sand(i, j));
             } else if (locations.has(`${i},${j}`)) {
-                if (locations.size > 3){
-                    if(hasDrought === false){
+                if (locations.size > 3) {
+                    if (hasDrought === false) {
                         cell = new OasisMarker(i, j, 'Drought');
                         hasDrought = true;
-                    } else{
+                    } else {
                         cell = new OasisMarker(i, j, 'Oasis');
                     }
                 } else {
@@ -78,15 +112,15 @@ function updateMap(cells) {
             const div = document.createElement('div');
             div.classList.add('cell', 'w-20', 'h-20', 'bg-yellow-200');
 
-            if(cell instanceof OasisMarker) {
+            if (cell instanceof OasisMarker) {
                 div.id = `OasisMarker/${cell.markerType}`;
             } else {
                 div.id = cell.constructor.name;
             }
 
-            if(cell instanceof Sand) {
+            if (cell instanceof Sand) {
                 div.classList.add(cell.bgColor);
-            } else if(cell instanceof Item && cell.hidden === true) {
+            } else if (cell instanceof Item && cell.hidden === true) {
                 div.classList.add('bg-yellow-300');
             } else {
                 div.style.backgroundImage = cell.bgImage;
@@ -101,7 +135,7 @@ function updateMap(cells) {
 
 updateMap(currentMatrix);
 
-window.addEventListener('keydown', function(event) {
+window.addEventListener('keydown', function (event) {
     const key = event.key;
     const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
@@ -131,7 +165,7 @@ window.addEventListener('keydown', function(event) {
 
     if (key === ' ') {
         if (player.loc instanceof OasisMarker) {
-            if(player.loc.markerType === 'Oasis'){
+            if (player.loc.markerType === 'Oasis') {
                 player.loc = new Oasis(player.x, player.y);
             } else {
                 player.loc = new Drought(player.x, player.y);
