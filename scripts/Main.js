@@ -10,6 +10,10 @@ const matrix = document.getElementById('matrix');
 
 let numPlayers;
 let players = [];
+let gameStarted = false;
+let currentMatrix = createLevel(players);
+
+updateMap(currentMatrix, matrix);
 
 window.onload = function() {
     const setNumPlayersForm = document.getElementById('setNumPlayers');
@@ -54,20 +58,18 @@ window.onload = function() {
         setNamePlayersForm.style.display = 'none';
         document.getElementById('startModal').style.display = 'none';
 
+        gameStarted = true;
     });
 }
-
-const currentMatrix = createLevel(players);
-
-updateMap(currentMatrix, matrix);
 
 window.addEventListener('keydown', function (event) {
     const key = event.key;
     const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
-    if (validKeys.includes(key)) {
-        const oldCell = currentMatrix[players[0].x][players[0].y];
-        const oldLoc = players[0].loc;
+    if (validKeys.includes(key) && gameStarted === true) {
+
+        let oldCell = currentMatrix[players[0].x][players[0].y];
+        let oldLoc = players[0].loc;
 
         if (key === 'ArrowLeft' && players[0].y > 0) {
             players[0].moveLeft();
@@ -85,20 +87,19 @@ window.addEventListener('keydown', function (event) {
         currentMatrix[players[0].x][players[0].y] = new Player(players[0].x, players[0].y, players[0].loc, players[0].name);
         currentMatrix[oldCell.x][oldCell.y] = oldLoc;
 
-        matrix.innerHTML = '';
         updateMap(currentMatrix, matrix);
     }
 
     if (key === ' ') {
-        if (players.at(0).loc instanceof OasisMarker) {
-            if (players.at(0).loc.markerType === 'Oasis') {
-                players.at(0).loc = new Oasis(players.at(0).x, players.at(0).y);
+        if (players[0].loc instanceof OasisMarker) {
+            if (players[0].loc.markerType === 'Oasis') {
+                players[0].loc = new Oasis(players[0].x, players[0].y);
             } else {
-                players.at(0).loc = new Drought(players.at(0).x, players.at(0).y);
+                players[0].loc = new Drought(players[0].x, players[0].y);
             }
         }
-        if (players.at(0).loc instanceof Item && players.at(0).loc.hidden === true) {
-            players.at(0).loc.hidden = false;
+        if (players[0].loc instanceof Item && players[0].loc.hidden === true) {
+            players[0].loc.hidden = false;
         }
     }
 });
