@@ -1,6 +1,7 @@
 import { Player } from './Player.js';
 import { OasisMarker } from './OasisMarker.js';
 import { Sand } from './Sand.js';
+import { Clue } from './Clue.js';
 import { Oasis } from "./Oasis.js";
 import { Drought } from "./Drought.js";
 import { Item } from "./Item.js";
@@ -11,9 +12,7 @@ const matrix = document.getElementById('matrix');
 let numPlayers;
 let players = [];
 let gameStarted = false;
-let currentMatrix = createLevel(players);
-
-updateMap(currentMatrix, matrix);
+let currentMatrix;
 
 window.onload = function() {
     const setNumPlayersForm = document.getElementById('setNumPlayers');
@@ -59,8 +58,14 @@ window.onload = function() {
         document.getElementById('startModal').style.display = 'none';
 
         gameStarted = true;
+        currentMatrix = createLevel(numPlayers, players);
+
+        updateMap(currentMatrix, matrix);
+
     });
 }
+
+
 
 window.addEventListener('keydown', function (event) {
     const key = event.key;

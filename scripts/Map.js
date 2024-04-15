@@ -1,59 +1,89 @@
 import { Player } from './Player.js';
 import { OasisMarker } from './OasisMarker.js';
 import { Sand } from './Sand.js';
+import { Clue } from './Clue.js';
 import { Oasis } from "./Oasis.js";
 import { Drought } from "./Drought.js";
 import { Item } from "./Item.js";
 
-const MAP_SIZE = 5;
-const OBJECT_LOCATIONS = 7;
-
-export function getRandomSet(length) {
-    let set = new Set();
-    while (set.size < length) {
-        const i = Math.floor(Math.random() * 5);
-        const j = Math.floor(Math.random() * 5);
-
-        if (set.has(`${i},${j}`) || (i === 2 && j === 2)) {
-            continue;
-        }
-        set.add(`${i},${j}`);
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
-    return set;
+    return array;
 }
 
-export function createLevel(players) {
-    let hasDrought = false;
-    let cells = [];
-    let locations = getRandomSet(OBJECT_LOCATIONS);
+let objects = [];
+for (let i = 0; i < 3; i++) {
+    objects.push(`Item ${i+1}`);
+    objects.push(`OasisMarker Oasis`);
+}
+objects.push(`OasisMarker Drought`);
+shuffleArray(objects);
 
-    for (let i = 0; i < MAP_SIZE; i++) {
+export function createLevel(numPlayers, players) {
+    let cells = [];
+    for (let i = 0; i < 5; i++) {
         let row = [];
-        for (let j = 0; j < MAP_SIZE; j++) {
-            let cell;
-            if (i === Math.floor(MAP_SIZE / 2) && j === Math.floor(MAP_SIZE / 2)) {
-                const currName = document.getElementById(`player_${1}-name`).textContent;
-                cell = new Player(i, j, new Sand(i, j), currName);
-                players.push(new Player(i, j, new Sand(i, j), currName));
-                // players.push(cell);
-            } else if (locations.has(`${i},${j}`)) {
-                if (locations.size > 3) {
-                    if (hasDrought === false) {
-                        cell = new OasisMarker(i, j, 'Drought');
-                        hasDrought = true;
-                    } else {
-                        cell = new OasisMarker(i, j, 'Oasis');
-                    }
-                } else {
-                    cell = new Item(i, j, locations.size);
-                }
-                locations.delete(`${i},${j}`);
-            } else {
-                cell = new Sand(i, j);
-            }
+        for (let j = 0; j < 5; j++) {
+            let cell = new Sand(i, j);
             row.push(cell);
         }
         cells.push(row);
+    }
+    // for(let i = 0; i < numPlayers; i++) {
+    //     if(i === 1) {
+    //         players.push(new Player(2, 2, new Sand(2, 2), `player${i+1}`));
+    //         cells[2][2] = new Player(2, 2, new Sand(2, 2), `player${i+1}`);
+    //     } else {
+    //         const player = players[i-1];
+    //         players.push(new Player(2, 2, new Player(player.x, player.y, player.loc, player.name), `player${i+1}`));
+    //         cells[2][2] = new Player(2, 2,new Player(player.x, player.y, player.loc, player.name), `player${i+1}`);
+    //     }
+    // }
+
+    cells[2][2] = new Player(2, 2, new Sand(2, 2), 'player1');
+    players.push(new Player(2, 2, new Sand(2, 2), 'player1'));
+    while (objects.length !== 0) {
+        const i = Math.floor(Math.random() * 5);
+        const j = Math.floor(Math.random() * 5);
+
+        if (cells[i][j] instanceof Sand) {
+            const firstArg = objects[0].split(' ')[0];
+            const secondArg = objects[0].split(' ')[1];
+            if(firstArg === 'Item') {
+                cells[i][j] = new Item(i, j, parseInt(secondArg));
+
+                let rowClue = false;
+                let colClue = false;
+                for(let x = 0; x < 5; x++){
+                    if(cells[x][j] instanceof Sand && colClue === false){
+                        if(x > i) {
+                            cells[x][j] = new Clue(x, j, parseInt(secondArg), 'UP')
+                        } else {
+                            cells[x][j] = new Clue(x, j, parseInt(secondArg), 'DOWN')
+                        }
+                        colClue = true;
+                    }
+                    if(cells[i][x] instanceof Sand && rowClue === false){
+                        if(x > j) {
+                            cells[i][x] = new Clue(i, x, parseInt(secondArg), 'LEFT')
+                        } else {
+                            cells[i][x] = new Clue(i, x, parseInt(secondArg), 'RIGHT')
+                        }
+                        rowClue = true;
+                    }
+                }
+            } else {
+                if(secondArg === 'Drought') {
+                    cells[i][j] = new OasisMarker(i, j, 'Drought');
+                } else {
+                    cells[i][j] = new OasisMarker(i, j, 'Oasis');
+                }
+            }
+            objects.shift();
+        }
     }
     return cells;
 }
