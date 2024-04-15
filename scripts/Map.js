@@ -6,7 +6,7 @@ import { Drought } from "./Drought.js";
 import { Item } from "./Item.js";
 
 const MAP_SIZE = 5;
-const OASIS_LOCATIONS = 7;
+const OBJECT_LOCATIONS = 7;
 
 export function getRandomSet(length) {
     let set = new Set();
@@ -25,7 +25,7 @@ export function getRandomSet(length) {
 export function createLevel(players) {
     let hasDrought = false;
     let cells = [];
-    let locations = getRandomSet(OASIS_LOCATIONS);
+    let locations = getRandomSet(OBJECT_LOCATIONS);
 
     for (let i = 0; i < MAP_SIZE; i++) {
         let row = [];
@@ -34,7 +34,8 @@ export function createLevel(players) {
             if (i === Math.floor(MAP_SIZE / 2) && j === Math.floor(MAP_SIZE / 2)) {
                 const currName = document.getElementById(`player_${1}-name`).textContent;
                 cell = new Player(i, j, new Sand(i, j), currName);
-                players.push(cell);
+                players.push(new Player(i, j, new Sand(i, j), currName));
+                // players.push(cell);
             } else if (locations.has(`${i},${j}`)) {
                 if (locations.size > 3) {
                     if (hasDrought === false) {
@@ -58,6 +59,8 @@ export function createLevel(players) {
 }
 
 export function updateMap(cells, matrix) {
+    matrix.innerHTML = '';
+
     cells.forEach(row => {
         row.forEach(cell => {
             const div = document.createElement('div');
