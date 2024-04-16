@@ -104,7 +104,7 @@ export function updateMap(cells, matrix) {
 
             if (cell instanceof Sand) {
                 div.classList.add(cell.bgColor);
-            } else if (cell instanceof Item && cell.hidden === true) {
+            } else if ((cell instanceof Item || cell instanceof Clue) && cell.hidden === true) {
                 div.classList.add('bg-yellow-300');
             } else {
                 div.style.backgroundImage = cell.bgImage;
