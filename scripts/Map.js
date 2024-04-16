@@ -33,19 +33,19 @@ export function createLevel(numPlayers, players) {
         }
         cells.push(row);
     }
-    // for(let i = 0; i < numPlayers; i++) {
-    //     if(i === 1) {
-    //         players.push(new Player(2, 2, new Sand(2, 2), `player${i+1}`));
-    //         cells[2][2] = new Player(2, 2, new Sand(2, 2), `player${i+1}`);
-    //     } else {
-    //         const player = players[i-1];
-    //         players.push(new Player(2, 2, new Player(player.x, player.y, player.loc, player.name), `player${i+1}`));
-    //         cells[2][2] = new Player(2, 2,new Player(player.x, player.y, player.loc, player.name), `player${i+1}`);
-    //     }
-    // }
+    for(let i = 0; i < numPlayers; i++) {
+        if(i === 0) {
+            players.push(new Player(2, 2, new Sand(2, 2)));
+            cells[2][2] = new Player(2, 2, new Sand(2, 2));
+        } else {
+            const player = players[i-1];
+            players.push(new Player(2, 2, new Player(player.x, player.y, player.loc, player.name)));
+            cells[2][2] = new Player(2, 2,new Player(player.x, player.y, player.loc, player.name));
+        }
+    }
 
-    cells[2][2] = new Player(2, 2, new Sand(2, 2), 'player1');
-    players.push(new Player(2, 2, new Sand(2, 2), 'player1'));
+    // cells[2][2] = new Player(2, 2, new Sand(2, 2), 'player1');
+    // players.push(new Player(2, 2, new Sand(2, 2), 'player1'));
     while (objects.length !== 0) {
         const i = Math.floor(Math.random() * 5);
         const j = Math.floor(Math.random() * 5);
@@ -99,6 +99,8 @@ export function updateMap(cells, matrix) {
 
             if (cell instanceof OasisMarker) {
                 div.id = `OasisMarker/${cell.markerType}`;
+            } else if(cell instanceof Item) {
+                div.id = `Item ${cell.type}`;
             } else {
                 div.id = cell.constructor.name;
             }

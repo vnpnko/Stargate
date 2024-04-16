@@ -1,10 +1,9 @@
 import {Cell} from "./Cell.js";
 
 export class Player extends Cell {
-    constructor(x, y, loc, name) {
+    constructor(x, y, loc) {
         super(x, y);
         this.bgImage = 'url("Assets/Player.png")';
-        this.name = name;
         this.loc = loc;
         this.actions = 3;
         this.water = 6;

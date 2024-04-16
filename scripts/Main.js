@@ -13,7 +13,24 @@ const matrix = document.getElementById('matrix');
 let numPlayers;
 let players = [];
 let gameStarted = false;
+let foundItems = 0;
 let currentMatrix;
+let currentPlayer;
+let gameTime = 0;
+let timerId;
+
+function startGameTimer() {
+    timerId = setInterval(function() {
+        gameTime++;
+        let minutes = Math.floor(gameTime / 60);
+        let seconds = gameTime % 60;
+        document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }, 1000);
+}
+
+function stopGameTimer() {
+    clearInterval(timerId);
+}
 
 window.onload = function() {
     const setNumPlayersForm = document.getElementById('setNumPlayers');
@@ -59,64 +76,91 @@ window.onload = function() {
         document.getElementById('startModal').style.display = 'none';
 
         gameStarted = true;
+        startGameTimer();
         currentMatrix = createLevel(numPlayers, players);
 
         updateMap(currentMatrix, matrix);
-
+        currentPlayer = numPlayers - 1;
     });
 }
 
 
-
 window.addEventListener('keydown', function (event) {
+    if (foundItems === 3) {
+        alert("You won! Players found all three parts");
+        gameStarted = false;
+        stopGameTimer()
+    }
+    for (let player of players) {
+        if (player.water === 0 && player.actions === 1) {
+            alert("Game Over! A player has run out of water");
+            gameStarted = false;
+            stopGameTimer()
+        }
+    }
+
     const key = event.key;
     const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
-    if(gameStarted === true && players[0].actions > 0){
+    if(gameStarted === true && players[currentPlayer].actions > 0){
         if (validKeys.includes(key)) {
-            let oldCell = currentMatrix[players[0].x][players[0].y];
-            let oldLoc = players[0].loc;
+            let oldCell = currentMatrix[players[currentPlayer].x][players[currentPlayer].y];
+            let oldLoc = players[currentPlayer].loc;
 
-            if (key === 'ArrowLeft' && players[0].y > 0) {
-                players[0].moveLeft();
-            } else if (key === 'ArrowRight' && players[0].y < 4) {
-                players[0].moveRight();
-            } else if (key === 'ArrowUp' && players[0].x > 0) {
-                players[0].moveUp();
-            } else if (key === 'ArrowDown' && players[0].x < 4) {
-                players[0].moveDown();
+            if (key === 'ArrowLeft' && players[currentPlayer].y > 0) {
+                players[currentPlayer].moveLeft();
+            } else if (key === 'ArrowRight' && players[currentPlayer].y < 4) {
+                players[currentPlayer].moveRight();
+            } else if (key === 'ArrowUp' && players[currentPlayer].x > 0) {
+                players[currentPlayer].moveUp();
+            } else if (key === 'ArrowDown' && players[currentPlayer].x < 4) {
+                players[currentPlayer].moveDown();
             } else {
                 return;
             }
 
-            players[0].loc = currentMatrix[players[0].x][players[0].y];
-            currentMatrix[players[0].x][players[0].y] = new Player(players[0].x, players[0].y, players[0].loc, players[0].name);
+            players[currentPlayer].loc = currentMatrix[players[currentPlayer].x][players[currentPlayer].y];
+            currentMatrix[players[currentPlayer].x][players[currentPlayer].y] = new Player(players[currentPlayer].x, players[currentPlayer].y, players[currentPlayer].loc, players[currentPlayer].name);
             currentMatrix[oldCell.x][oldCell.y] = oldLoc;
 
             updateMap(currentMatrix, matrix);
         }
 
         if (key === ' ') {
-            if (players[0].loc instanceof OasisMarker) {
-                if (players[0].loc.markerType === 'Oasis') {
-                    players[0].loc = new Oasis(players[0].x, players[0].y);
-                } else {
-                    players[0].loc = new Drought(players[0].x, players[0].y);
-                }
-            } else if (players[0].loc instanceof Oasis) {
-                players[0].water++;
-            } else if ((players[0].loc instanceof Item || players[0].loc instanceof Clue) && players[0].loc.hidden === true) {
-                players[0].loc.hidden = false;
-            } else {
-                players[0].loc = new Hole(players[0].x, players[0].y);
+            console.log(foundItems);
+            if(players[currentPlayer].loc instanceof Item && players[currentPlayer].loc.hidden === true) {
+                foundItems++;
             }
-            players[0].actions--;
+
+            if (players[currentPlayer].loc instanceof OasisMarker) {
+                if (players[currentPlayer].loc.markerType === 'Oasis') {
+                    players[currentPlayer].loc = new Oasis(players[currentPlayer].x, players[currentPlayer].y);
+                } else {
+                    players[currentPlayer].loc = new Drought(players[currentPlayer].x, players[currentPlayer].y);
+                }
+            } else if (players[currentPlayer].loc instanceof Oasis) {
+                if(players[currentPlayer].water < 6){
+                    players[currentPlayer].water++;
+                }
+            } else if ((players[currentPlayer].loc instanceof Item || players[currentPlayer].loc instanceof Clue) && players[currentPlayer].loc.hidden === true) {
+                players[currentPlayer].loc.hidden = false;
+            } else {
+                players[currentPlayer].loc = new Hole(players[currentPlayer].x, players[currentPlayer].y);
+            }
+            players[currentPlayer].actions--;
+        }
+
+        players[currentPlayer].updateWater();
+        document.getElementById(`actions ${currentPlayer + 1}`).getElementsByTagName('p')[0].textContent = players[currentPlayer].actions;
+        document.getElementById(`water ${currentPlayer + 1}`).getElementsByTagName('p')[0].textContent = players[currentPlayer].water;
+
+        if(players[currentPlayer].actions === 3){
+            if(currentPlayer === 0) {
+                currentPlayer = numPlayers - 1;
+            } else {
+                currentPlayer = (currentPlayer - 1) % numPlayers;
+            }
         }
     }
-
-    players[0].updateWater();
-    document.getElementById('actions 1').getElementsByTagName('p')[0].textContent = players[0].actions;
-    document.getElementById('water 1').getElementsByTagName('p')[0].textContent = players[0].water;
-
 });
 
