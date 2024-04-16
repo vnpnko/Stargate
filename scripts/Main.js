@@ -1,6 +1,7 @@
 import { Player } from './Player.js';
 import { OasisMarker } from './OasisMarker.js';
 import { Sand } from './Sand.js';
+import { Hole } from './Hole.js';
 import { Clue } from './Clue.js';
 import { Oasis } from "./Oasis.js";
 import { Drought } from "./Drought.js";
@@ -71,41 +72,51 @@ window.addEventListener('keydown', function (event) {
     const key = event.key;
     const validKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
-    if (validKeys.includes(key) && gameStarted === true) {
+    if(gameStarted === true && players[0].actions > 0){
+        if (validKeys.includes(key)) {
+            let oldCell = currentMatrix[players[0].x][players[0].y];
+            let oldLoc = players[0].loc;
 
-        let oldCell = currentMatrix[players[0].x][players[0].y];
-        let oldLoc = players[0].loc;
-
-        if (key === 'ArrowLeft' && players[0].y > 0) {
-            players[0].moveLeft();
-        } else if (key === 'ArrowRight' && players[0].y < 4) {
-            players[0].moveRight();
-        } else if (key === 'ArrowUp' && players[0].x > 0) {
-            players[0].moveUp();
-        } else if (key === 'ArrowDown' && players[0].x < 4) {
-            players[0].moveDown();
-        } else {
-            return;
-        }
-
-        players[0].loc = currentMatrix[players[0].x][players[0].y];
-        currentMatrix[players[0].x][players[0].y] = new Player(players[0].x, players[0].y, players[0].loc, players[0].name);
-        currentMatrix[oldCell.x][oldCell.y] = oldLoc;
-
-        updateMap(currentMatrix, matrix);
-    }
-
-    if (key === ' ') {
-        if (players[0].loc instanceof OasisMarker) {
-            if (players[0].loc.markerType === 'Oasis') {
-                players[0].loc = new Oasis(players[0].x, players[0].y);
+            if (key === 'ArrowLeft' && players[0].y > 0) {
+                players[0].moveLeft();
+            } else if (key === 'ArrowRight' && players[0].y < 4) {
+                players[0].moveRight();
+            } else if (key === 'ArrowUp' && players[0].x > 0) {
+                players[0].moveUp();
+            } else if (key === 'ArrowDown' && players[0].x < 4) {
+                players[0].moveDown();
             } else {
-                players[0].loc = new Drought(players[0].x, players[0].y);
+                return;
             }
+
+            players[0].loc = currentMatrix[players[0].x][players[0].y];
+            currentMatrix[players[0].x][players[0].y] = new Player(players[0].x, players[0].y, players[0].loc, players[0].name);
+            currentMatrix[oldCell.x][oldCell.y] = oldLoc;
+
+            updateMap(currentMatrix, matrix);
         }
-        if ((players[0].loc instanceof Item || players[0].loc instanceof Clue) && players[0].loc.hidden === true) {
-            players[0].loc.hidden = false;
+
+        if (key === ' ') {
+            if (players[0].loc instanceof OasisMarker) {
+                if (players[0].loc.markerType === 'Oasis') {
+                    players[0].loc = new Oasis(players[0].x, players[0].y);
+                } else {
+                    players[0].loc = new Drought(players[0].x, players[0].y);
+                }
+            } else if (players[0].loc instanceof Oasis) {
+                players[0].water++;
+            } else if ((players[0].loc instanceof Item || players[0].loc instanceof Clue) && players[0].loc.hidden === true) {
+                players[0].loc.hidden = false;
+            } else {
+                players[0].loc = new Hole(players[0].x, players[0].y);
+            }
+            players[0].actions--;
         }
     }
+
+    players[0].updateWater();
+    document.getElementById('actions 1').getElementsByTagName('p')[0].textContent = players[0].actions;
+    document.getElementById('water 1').getElementsByTagName('p')[0].textContent = players[0].water;
+
 });
 

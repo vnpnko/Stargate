@@ -25,5 +25,11 @@ export class Player extends Cell {
         this.actions -= 1;
         this.x += 1;
     }
+    updateWater() {
+        if(this.water > 0 && this.actions === 0) {
+            this.water--;
+            this.actions = 3;
+        }
+    }
 }
 
