@@ -103,7 +103,7 @@ window.addEventListener('keydown', function (event) {
                 players[0].loc = new Drought(players[0].x, players[0].y);
             }
         }
-        if (players[0].loc instanceof Item && players[0].loc.hidden === true) {
+        if ((players[0].loc instanceof Item || players[0].loc instanceof Clue) && players[0].loc.hidden === true) {
             players[0].loc.hidden = false;
         }
     }

@@ -6,6 +6,6 @@ export class Clue extends Cell {
         this.item = item;
         this.direction = direction;
         this.bgImage = `url("Assets/Item ${this.item} - clue_${this.direction}.png")`;
-        // this.hidden = true;
+        this.hidden = true;
     }
 }
