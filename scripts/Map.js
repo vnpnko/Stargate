@@ -1,6 +1,7 @@
 import { Player } from './Player.js';
 import { OasisMarker } from './OasisMarker.js';
 import { Sand } from './Sand.js';
+import { Hole } from './Hole.js';
 import { Clue } from './Clue.js';
 import { Oasis } from "./Oasis.js";
 import { Drought } from "./Drought.js";
